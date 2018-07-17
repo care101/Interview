@@ -7,7 +7,7 @@
 
 >> 函数
 
->> 面向对象三大特征：封装多态继承
+>> [面向对象三大特征：封装多态继承](https://github.com/care101/Interview/blob/master/C%2B%2B.md#c%E5%8A%A8%E6%80%81%E6%80%A7)
 
 >> 编译运行
 
