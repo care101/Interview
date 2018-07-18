@@ -1,5 +1,104 @@
 # 测IO
 
+## iostat 查看磁盘IO情况
+
+### 安装
+```
+yum install sysstat -y
+```
+### 语法
+```
+-d    表示显示设备（磁盘）使用状态
+-x    表示显示和io相关的扩展数据
+-k    表示某些使用block为单位的列强制使用Kilobytes为单位
+-c    查看cpu信息
+```
+### 使用
+```
+#iostat -d -k 1 10         #查看TPS和吞吐量信息
+```
+```
+tps：该设备每秒的传输次数（Indicate the number of transfers per second that were issued to the device.）
+"一次传输"意思是"一次I/O请求"。多个逻辑请求可能会被合并为"一次I/O请求"。"一次传输"请求的大小是未知的。
+kB_read/s：每秒从设备（drive expressed）读取的数据量；
+kB_wrtn/s：每秒向设备（drive expressed）写入的数据量；
+kB_read：读取的总数据量；
+kB_wrtn：写入的总数量：这些单位都为Kilobytes，即KB
+```
+```
+#iostat -d -x -k 1 10      #查看设备使用率（%util）、响应时间（await）
+```
+以上可以看到，磁盘的平均响应时间较小，为0，磁盘使用率平均为3.0左右，比较小。
+```
+#iostat -c 1 10            #查看cpu状态
+```
+```
+iostat -x -k  
+```
+如果%util接近100%,说明产生的I/O请求太多,I/O系统已经满负载,该磁盘可能存在瓶颈。
+```
+iostat -d sda 2
+```
+监控指定设备
+
+在使用LINUX时经常会遇到系统IO占用很高，系统IO占用可以使用iostat -x 1查看。
+
+linux系统中，管理员可以使用top来监控进程的cpu和内存的使用情况，但是对于磁盘的i/o则只能使用iostat笼统地进行监视，不能对应进程这对于管理员来说很不方便。比如你的服务器负载很低，内存使用也很少，但是硬盘狂转，但你就是无法准确确定是哪个进程在搞鬼。
+
+## iotop 磁盘IO 定位负载来源进程
+
+iotop 是一个用来监视磁盘 I/O 使用状况的 top 类工具。但很多时候知道磁盘IO负载高，但并不知道是什么程序占用的，是PHP，还是MYSQL,还是其它的，这就不好查看了。iotop工具可以实现
+
+iotop 可以清楚地知晓是什么程序在读写磁盘，速度以及命令行，pid 等信息。
+
+iotop可以显示磁盘读写的速率，交换分区进出情况和整体磁盘性能状况，这些都是按照每个进程使用情况来统计。进程列表按照I/O使用状态排序并每秒刷新一次。
+
+### 语法
+```
+-p 指定进程ID，显示该进程的IO情况
+-u 指定用户名，显示该用户所有的进程IO情况
+```
+## vmstat 测硬盘IO
+
+vmstat命令的含义为显示虚拟内存状态（“Viryual Memor Statics”），但是它可以报告关于进程、内存、I/O等系统整体运行状态
+### 使用方法
+```
+vmstat [-V] [-n] [delay [count]]
+ -V 显示vmstat的版本；
+ -n causes the headers not to be reprinted regularly.
+ -a 显示所有激活和未激活内存的状态；print inactive/active page stats.
+ -d 显示硬盘统计信息；prints disk statistics
+ -D 显示硬盘分区表；prints disk table
+ -p 显示硬盘分区读写状态等；prints disk partition statistics
+ -s 显示内存使用情况；prints vm table
+ -m prints slabinfo
+ -S 定义单位，k K
+ delay 是两次刷新时间间隔；
+ 单位体积： k:1000 K:1024 m:1000000 M:1048576 (默认是 K)
+ count 刷新次数；
+```
+### 显示参数
+```
+r  :The number of processes waiting for run time. 等待运行时间的进程数，即等待的进程数、
+b  :The number of processes in uninterruptible sleep. 在等待io的进程数
+swpd: 虚拟内存的使用量
+free：空闲内存量
+buff：缓冲区中的内存
+cache：被用来做为高速缓存的内存数
+si: 从磁盘交换到内存的交换页数量，单位：KB/秒。
+so: 从内存交换到磁盘的交换页数量，单位：KB/秒。
+bi: 发送到块设备的块数，单位：块/秒。
+bo: 从块设备接收到的块数，单位：块/秒。
+in: 每秒的中断数，包括时钟中断。
+cs: 每秒的环境（上下文）转换次数。
+us：用户进程使用的时间 。以百分比表示。
+sy：系统进程使用的时间。 以百分比表示。
+id：中央处理器的空闲时间 。以百分比表示。
+wa：io等待时间
+st：Time stolen from a virtual machine
+```
+## pt-ioprofile 定位负载来源文件 数据库运维
+
 ## iftop 测网络IO
 
 ### 安装
@@ -30,6 +129,7 @@ rates：分别表示过去 2s 10s 40s 的平均流量
 - 2、iftop相关参数
 
 - 常用的参数
+
 -i设定监测的网卡，如：# iftop -i eth1
 
 -B 以bytes为单位显示流量(默认是bits)，如：# iftop -B
@@ -100,22 +200,4 @@ rates：分别表示过去 2s 10s 40s 的平均流量
 
 按q退出监控。
 
-## iostat 
 
-在使用LINUX时经常会遇到系统IO占用很高，系统IO占用可以使用iostat -x 1查看。
-
-linux系统中，管理员可以使用top来监控进程的cpu和内存的使用情况，但是对于磁盘的i/o则只能使用iostat笼统地进行监视，不能对应进程这对于管理员来说很不方便。比如你的服务器负载很低，内存使用也很少，但是硬盘狂转，但你就是无法准确确定是哪个进程在搞鬼。
-
-## iotop 磁盘IO
-
-iotop 是一个用来监视磁盘 I/O 使用状况的 top 类工具。但很多时候知道磁盘IO负载高，但并不知道是什么程序占用的，是PHP，还是MYSQL,还是其它的，这就不好查看了。iotop工具可以实现
-
-iotop 可以清楚地知晓是什么程序在读写磁盘，速度以及命令行，pid 等信息。
-
-iotop可以显示磁盘读写的速率，交换分区进出情况和整体磁盘性能状况，这些都是按照每个进程使用情况来统计。进程列表按照I/O使用状态排序并每秒刷新一次。
-
--p 指定进程ID，显示该进程的IO情况
-
--u 指定用户名，显示该用户所有的进程IO情况
-
-## vmstat 测硬盘IO
