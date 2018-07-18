@@ -1,4 +1,8 @@
-# 测 cache miss rate
+# 1. gdb
+```
+gdb -tui --args ./toolkits/pagerank ./../data_sbb/uk-union.bin 133633040 100
+```
+# 2. 测 cache miss rate
 
 ## cache miss的原因
 
@@ -52,7 +56,52 @@ Hit timeL1 + Miss rateL1 × (Hit timeL2 + Miss rateL2 × Miss penaltyL2)
 在带有写缓冲的环境下适合使用这种优化方式。写缓冲有它的危害，写缓冲会保存更新的值，当一个读操作发送缺失时，由于缓冲和内存出现不一致情况下，读-写会产生危害。一种解决方案是在发生读缺失的情况下检查缓冲内容，如果没有和内存内容冲突，并且内存系统时可用的，那么先发送读操作，然后在写，降低缺失损失。这种方案没有额外的功率消耗。
 
  > 在索引cache期间避免地址转换降低命中时间。
-# 测IO
+ 
+ ## cache entry 结构
+
+一个Cache Entry大概是这样构成的
+
+ > tag	   data block	   flag bits
+
+tag：包含部分内存地址
+
+data block：就是一个Cache Line的内容
+
+flag bits：一般包含数据是否有效（valid bit）和数据是否被写（dirty bit），指令缓存因为只读，只需要valid bit，但是不知道具体实现是怎样的。
+
+一个有效内存地址可以分为
+ 
+ > tag	    index	block   offset
+
+index：表示装入Cache Set的索引号
+
+block offset：表示这个地址在数据块（data block）中的偏移量
+
+ - 举例来说：如果L1 Cache大小为8k，每个Cache Line是64 bytes，4个Cache Line组成一个Cache Set。那么总共就有8k / 64 bytes = 128个Cache Line，每4个组成一组，那就有128 / 4 = 32个Cache Set.所以block offset占6个bit（2^6=64），index占5个bit（2^5=32），tag占21个bit（32 - 5 - 6）
+ 
+## 1. cachegrind (+slurm)
+
+ > 是否用slurm跑的cache miss tate的区别：
+
+是不是slurm因为用到了网络通信，所以进行的内存访问更多的是在网络通信的程序上，而不是数据访问上
+
+迭代100次和迭代1次，cache缺失的次数都很接近。说明cachegrind并没有记录到，使用slurm之后访问数据的cache缺失
+
+## 2. perf 
+```
+perf stat -e cache-references,cache-misses ./toolkits/pagerank ./../data_sbb/enwiki-2013.bin 4206757 100
+```
+这个没有cachegrind那么严格，是采用采样的方法测试的，速度比较快，测得的是近似值，不过已经可以达到目的了
+
+在测得时候，把迭代次数设置成80次，这样能够确保算法收敛，测出来才有意义哈
+
+这个perf是采用采样的方式，所以有些误差，没有cachegrind采用的完全模拟的方式准确，不过也有参考价值。可以多测几次取平均。
+
+## 3. 直接用mpi跑：
+```
+mpiexec -n 10 ./../GeminiGraph-master/toolkits/pagerank ./../data_sbb/amazon-2008.bin 735322 10
+```
+# 3. 测IO
 
 ## 1. iostat 查看磁盘IO情况
 
