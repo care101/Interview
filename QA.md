@@ -1,3 +1,57 @@
+# 测 cache miss rate
+
+## cache miss的原因
+
+ > 强制性失效 (Compulsory miss): 
+ 
+ 当第一次访问一个块时，该块不在 Cache中, 需从下一级存储中调入 Cache, 这就是强制性失效。这种失效也称为冷启动失效，或首次访问失效。(增加块大小，预取)
+
+ > 容量失效 (Capacity miss): 
+ 
+ 如果程序执行时所需的块不能全部调入 Cache 中, 则当某些块被替换后, 若又重新被访问, 就会发生失效。这种失效称为容量失效。(增加容量) 抖动现象。
+
+ > 冲突失效 (Conflict miss): 
+ 
+ 在组相联或直接映像 Cache 中, 若太多的块映像到同一组(块)中，则会出现该组中某个块被别的块替换、然后又被重新访问的情况。这就是发生了冲突失效。这种失效也称为碰撞失效 (collision) 或干扰失效 (interference)。(提高相联度)
+ 
+## Cache性能的衡量标准 
+ > 缺失率：访问Cache失效次数/访问内存总次数 
+
+Miss Rate = Misses / Memory accesses
+
+ > 每条指令缺失次数： 
+
+Misses/Instruction = Miss Rate * Memory accesses / Instruction
+ 
+ > 平均内存访问时间： 
+
+Average memory access time = Hit time + Miss rate × Miss penalty 
+
+hit time：cache 命中所需要的访问时间 
+
+Miss penalty：失效开销，cache未命中，从内存取出相应块并替换cache中某块的时间之和 
+
+注：平均内存访问时间虽然叫缺失率性能更好，但是它仍然是一种间接的方法，不能够直接代替执行时间。推测处理及可能执行其他指令在cache失效期间，能够弥补一部分损失。多线程的使用也能够容忍失效，避免处理机闲置。
+
+## cache的基本优化方案 
+
+ > 采用更大的块将低缺失率。
+
+ > 采用更大的cache降低缺失率。
+
+ > 搞关联性降低缺失率。
+
+ > 多级缓存降低缺失损失。 
+
+average memory access time: 
+
+Hit timeL1 + Miss rateL1 × (Hit timeL2 + Miss rateL2 × Miss penaltyL2)
+
+ > 给读缺失更高的优先级来降低缺失损失。 
+
+在带有写缓冲的环境下适合使用这种优化方式。写缓冲有它的危害，写缓冲会保存更新的值，当一个读操作发送缺失时，由于缓冲和内存出现不一致情况下，读-写会产生危害。一种解决方案是在发生读缺失的情况下检查缓冲内容，如果没有和内存内容冲突，并且内存系统时可用的，那么先发送读操作，然后在写，降低缺失损失。这种方案没有额外的功率消耗。
+
+ > 在索引cache期间避免地址转换降低命中时间。
 # 测IO
 
 ## 1. iostat 查看磁盘IO情况
