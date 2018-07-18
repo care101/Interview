@@ -1,9 +1,7 @@
 #include <iostream>
-
 using namespace std;
 
 typedef int index;
-
 template<typename unit>
 class maxstack
 {
