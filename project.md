@@ -19,6 +19,8 @@ sockets = numa_num_configured_nodes();
 
 # 介绍项目
 
+>服务计算技术与系统教育部重点实验室
+
 > 在图算法和图数据集背景下，针对现有图处理系统提出优化。有两方面的优化：加速和降低能耗（cache miss rate和IO开销）
 
 > 图算法：
