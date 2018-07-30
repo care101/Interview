@@ -120,6 +120,10 @@ block offset：表示这个地址在数据块（data block）中的偏移量
  - 举例来说：如果L1 Cache大小为8k，每个Cache Line是64 bytes，4个Cache Line组成一个Cache Set。那么总共就有8k / 64 bytes = 128个Cache Line，每4个组成一组，那就有128 / 4 = 32个Cache Set.所以block offset占6个bit（2^6=64），index占5个bit（2^5=32），tag占21个bit（32 - 5 - 6）
  
 ## 1. cachegrind (+slurm)
+```
+valgrind --tool=cachegrind ~/GeminiGraph-master/toolkits/pagerank 
+```
+- Cachegrind 模拟您的程序与机器缓存等级和（可选）分支预测单元的互动。它跟踪模拟的一级指令和数据缓存的用量以便探测不良代码与这一级缓存的互动；最高一级，可以是二级或者三级缓存，用来跟踪对主内存的访问。因此，使用 Cachegrind 运行的程序速度比正常运行时要慢 20-100 倍。
 
  > 是否用slurm跑的cache miss tate的区别：
 
