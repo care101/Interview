@@ -6,13 +6,11 @@
 
 >> [创建多进程](https://github.com/care101/Interview/new/master#%E5%88%9B%E5%BB%BA%E5%A4%9A%E8%BF%9B%E7%A8%8B)
 
->> [共享内存](https://github.com/care101/Interview/new/master#mmap%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98)
+>> [mmap共享内存](https://github.com/care101/Interview/new/master#mmap%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98)
 
 > 多线程
 
->> 线程互斥（mutex，barrier，volatile）
-
-> 多线程
+>> 线程同步互斥（mutex，barrier，volatile）
 
 > NUMA
 
@@ -67,4 +65,10 @@ ptr=mmap(NULL, len , PROT_READ|PROT_WRITE, MAP_SHARED , fd , 0);
 
 3、另外mmap有一个好处是当机器重启，因为mmap把文件保存在磁盘上，这个文件还保存了操作系统同步的映像，所以mmap不会丢失，但是shmget就会丢失。
 
+## 进程同步互斥（锁）
+
 # 多线程
+
+## 线程同步互斥（mutex，barrier，volatile）
+
+线程同步不用互斥锁，代价太大。锁1次是临界区的20倍甚至50倍以上的时间。线程同步可以用volatile变量、interlocked系列函数、SRW读写锁(vista系统及以上)、临界区。消耗的时间从小到大。这些都只能用于线程同步，不能用于进程同步。当然线程同步也用到计时器、信号量、时间和等待函数。
