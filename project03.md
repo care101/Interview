@@ -72,3 +72,42 @@ ptr=mmap(NULL, len , PROT_READ|PROT_WRITE, MAP_SHARED , fd , 0);
 ## 线程同步互斥（mutex，barrier，volatile）
 
 线程同步不用互斥锁，代价太大。锁1次是临界区的20倍甚至50倍以上的时间。线程同步可以用volatile变量、interlocked系列函数、SRW读写锁(vista系统及以上)、临界区。消耗的时间从小到大。这些都只能用于线程同步，不能用于进程同步。当然线程同步也用到计时器、信号量、时间和等待函数。
+
+### mutex
+```C++
+std::mutex recv_queue_mutex;//对recv_queue的锁
+```
+```C++
+recv_queue_mutex.lock();
+recv_queue_size += 1;
+recv_queue_mutex.unlock();
+```
+
+### gcc 原子操作 无锁同步
+
+啥叫无锁同步？ 所谓锁，就是指linux原来提供的那些锁，包括mutex等东西，如果线程无法获得锁，就会进行任务调度CAS compare and swap，不使用系统提供的锁，而是直接利用cpu提供的指令，实现互斥操作。在写入新值之前，读出旧值，当且仅当旧值与存储中的当前值一致时，才把新值写入存储。当无法获得锁时，不需要进行任务调度，从而减轻了任务切换而引起的系统开销。__sync_bool_compare_and_swap是可供程序员调用的接口
+
+stdlib.h中，可以使用bool __sync_bool_compare_and_swap (type *ptr, type oldval, type newval, ...)和type __sync_val_compare_and_swap (type *ptr, type oldval, type newval, ...)两个函数
+
+### volatile
+```C++
+volatile int send_queue_size = 0;
+```
+
+### barrier（thread.join）
+```C++
+std::thread recv_thread_dst();
+```
+```C++
+recv_thread_dst.join();//执行这个.join之后上面的recv_thread_dst才会执行
+```
+
+### stl::atomic
+
+在C++11之后，可以使用stl中atomic类
+
+```C++
+template< class T > bool atomic_compare_exchange_weak( std::atomic<T>* obj,T* expected, T desired ); 
+template< class T > bool atomic_compare_exchange_weak( volatile std::atomic<T>* obj,T* expected, T desired );
+```
+
