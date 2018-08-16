@@ -10,7 +10,7 @@
 
 > 多线程
 
->> 线程同步互斥（mutex，barrier，volatile）
+>> 线程同步互斥（mutex，barrier，atomic）
 
 > NUMA
 
@@ -69,7 +69,7 @@ ptr=mmap(NULL, len , PROT_READ|PROT_WRITE, MAP_SHARED , fd , 0);
 
 # 多线程
 
-## 线程同步互斥（mutex，barrier，volatile）
+## 线程同步互斥（mutex，barrier，atomic）
 
 线程同步不用互斥锁，代价太大。锁1次是临界区的20倍甚至50倍以上的时间。线程同步可以用volatile变量、interlocked系列函数、SRW读写锁(vista系统及以上)、临界区。消耗的时间从小到大。这些都只能用于线程同步，不能用于进程同步。当然线程同步也用到计时器、信号量、时间和等待函数。
 
