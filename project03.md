@@ -89,11 +89,6 @@ recv_queue_mutex.unlock();
 
 stdlib.h中，可以使用bool __sync_bool_compare_and_swap (type *ptr, type oldval, type newval, ...)和type __sync_val_compare_and_swap (type *ptr, type oldval, type newval, ...)两个函数
 
-### volatile
-```C++
-volatile int send_queue_size = 0;
-```
-
 ### barrier（thread.join）
 ```C++
 std::thread recv_thread_dst();
@@ -102,6 +97,22 @@ std::thread recv_thread_dst();
 recv_thread_dst.join();//执行这个.join之后上面的recv_thread_dst才会执行
 ```
 
+### volatile
+
+C/C++ 中的 volatile 关键字和 const 对应，用来修饰变量，通常用于建立语言级别的 memory barrier。
+```C++
+volatile int send_queue_size = 0;
+```
+遇到这个关键字声明的变量，编译器对访问该变量的代码就不再进行优化，从而可以提供对特殊地址的稳定访问。声明时语法：int volatile vInt; 当要求使用 volatile 声明的变量的值的时候，系统总是重新从它所在的内存读取数据，即使它前面的指令刚刚从该处读取过数据。而且读取的数据立刻被保存。
+
+volatile 指出 i 是随时可能发生变化的，每次使用它的时候必须从 i的地址中读取，因而编译器生成的汇编代码会重新从i的地址读取数据放在 b 中。而优化做法是，由于编译器发现两次从 i读数据的代码之间的代码没有对 i 进行过操作，它会自动把上次读的数据放在 b 中。而不是重新从 i 里面读。这样以来，如果 i是一个寄存器变量或者表示一个端口数据就容易出错，所以说 volatile 可以保证对特殊地址的稳定访问。
+
+多线程下有些变量是用volatile关键字声明的。当两个线程都要用到某一个变量且该变量的值会被改变时，应该用volatile声明，该关键字的作用是防止优化编译器把变量从内存装入CPU寄存器中。如果变量被装入寄存器，那么两个线程有可能一个使用内存中的变量，一个使用寄存器中的变量，这会造成程序的错误执行。volatile的意思是让编译器每次操作该变量时一定要从内存中真正取出，而不是使用已经存在寄存器中的值
+
+因为在多核CPU中，每个CPU都有自己的缓存。缓存中存有一部分内存中的数据，CPU要对内存读取与存储的时候都会先去操作缓存，而不会直接对内存进行操作。所以多个CPU“看到”的内存中的数据是不一样的，这个叫做内存可见性问题（memory visibility）。并发编程下，一个程序可以有多个线程在不同的CPU核中同时运行，这个时候内存可见性就会影响程序的正确性。放到例子中就是，Thread 2修改了m_flag对应的内存，但是Thread 1在其他CPU核上运行，而两个CPU缓存和内存没有做同步，导致Thread 1运行的核上看到的一直都是旧的数据，于是Thread 1永远都不能醒来。内存可见性问题不是多线程环境下会遇到的唯一的问题，CPU的乱序执行也会导致一些意想不到的事情发生，关于这点volatile能做的也是有限的。这些都是属于并发编程的内容，在此我就不多做展开，总之volatile关键字对并发编程基本是没有帮助的。
+
+那么用不了volatile，我们该怎么修改上面的例子？C++11开始有一个很好用的库，那就是atomic类模板，在<atomic>头文件中，多个线程对atomic对象进行访问是安全的。
+
 ### stl::atomic
 
 在C++11之后，可以使用stl中atomic类
@@ -109,5 +120,10 @@ recv_thread_dst.join();//执行这个.join之后上面的recv_thread_dst才会�
 ```C++
 template< class T > bool atomic_compare_exchange_weak( std::atomic<T>* obj,T* expected, T desired ); 
 template< class T > bool atomic_compare_exchange_weak( volatile std::atomic<T>* obj,T* expected, T desired );
+```
+只要把“volatile bool”替换为“atomic<bool>”就可以。<atomic>头文件也定义了若干常用的别名，例如“atomic<bool>”就可以替换为“atomic_bool”。atomic模板重载了常用的运算符，所以atomic<bool>使用起来和普通的bool变量差别不大。
+```
+volatile bool m_flag;
+atomic<bool> m_flag;
 ```
 
