@@ -12,7 +12,7 @@
 
 > [多线程](https://github.com/care101/Interview/blob/master/project03.md#%E5%A4%9A%E7%BA%BF%E7%A8%8B)
 
->>[std::thread和omp]()
+>>[std::thread和omp](https://github.com/care101/Interview/blob/master/project/project03.md#stdthread%E5%92%8Comp)
 
 >> [线程同步互斥（mutex，barrier，atomic）](https://github.com/care101/Interview/blob/master/project03.md#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5mutexbarrieratomic)
 
