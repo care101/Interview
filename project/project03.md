@@ -12,6 +12,8 @@
 
 > [多线程](https://github.com/care101/Interview/blob/master/project03.md#%E5%A4%9A%E7%BA%BF%E7%A8%8B)
 
+>>[std::thread和omp]()
+
 >> [线程同步互斥（mutex，barrier，atomic）](https://github.com/care101/Interview/blob/master/project03.md#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5mutexbarrieratomic)
 
 > [NUMA](https://github.com/care101/Interview/blob/master/project03.md#numa)
@@ -76,6 +78,12 @@ MPI_Barrier函数 用于一个通信子中所有进程的同步，调用函数�
 ```
 
 # 多线程
+
+## std::thread和omp
+
+对于C++而言，当我们需要使用多线程时，可以使用boost::thread库或者自从C++ 11开始支持的std::thread，也可以使用操作系统相关的线程API，如在Linux上，可以使用pthread库。除此之外，还可以使用omp来使用多线程。它的好处是跨平台，使用简单。
+
+在Linux平台上，如果需要使用omp，只需在编译时使用"-fopenmp"指令。在Windows的visual studio开发环境中，开启omp支持的步骤为“项目属性 -> C/C++ -> 所有选项 -> openmp支持 -> 是(/openmp)”。
 
 ## 线程同步互斥（mutex，barrier，atomic）
 
