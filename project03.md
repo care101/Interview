@@ -126,4 +126,9 @@ template< class T > bool atomic_compare_exchange_weak( volatile std::atomic<T>* 
 volatile bool m_flag;
 atomic<bool> m_flag;
 ```
-
+# NUMA
+```C++
+numa_tonode_memory(array + sizeof(T) * local_partition_offset[s_i], sizeof(T) * (local_partition_offset[s_i+1] -local_partition_offset[s_i]), s_i);
+numa_free(array, sizeof(T) * vertices);
+```
+    
