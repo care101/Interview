@@ -4,6 +4,8 @@
 
 >> [内存扩展（内存复用以及缓存友好）](https://github.com/care101/Interview/blob/master/cpp/STL.md#%E5%86%85%E5%AD%98%E6%89%A9%E5%B1%95%E5%86%85%E5%AD%98%E5%A4%8D%E7%94%A8%E4%BB%A5%E5%8F%8A%E7%BC%93%E5%AD%98%E5%8F%8B%E5%A5%BD)
 
+>> [vector容器间的拷贝（stl::copy和模板偏特化）]()
+
 > map
 
 > set
@@ -47,7 +49,7 @@ iv.reserve(kSize);
 for (int i = 0; i < kSize; ++i)  
   iv.push_back(i);
 ```
-> vector容器间的拷贝（stl::copy和模板偏特化）
+## vector容器间的拷贝（stl::copy和模板偏特化）
 ```C++
 #include <iostream>
 #include <algorithm>
