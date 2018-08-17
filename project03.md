@@ -8,13 +8,13 @@
 
 >> [mmap共享内存](https://github.com/care101/Interview/new/master#mmap%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98)
 
->> [全局同步]()
+>> [全局同步](https://github.com/care101/Interview/blob/master/project03.md#%E5%85%A8%E5%B1%80%E5%90%8C%E6%AD%A5)
 
 > [多线程](https://github.com/care101/Interview/blob/master/project03.md#%E5%A4%9A%E7%BA%BF%E7%A8%8B)
 
 >> [线程同步互斥（mutex，barrier，atomic）](https://github.com/care101/Interview/blob/master/project03.md#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5mutexbarrieratomic)
 
-> NUMA
+> [NUMA](https://github.com/care101/Interview/blob/master/project03.md#numa)
 
 # 多进程
 
@@ -131,9 +131,9 @@ volatile 指出 i 是随时可能发生变化的，每次使用它的时候必�
 
 那么用不了volatile，我们该怎么修改上面的例子？C++11开始有一个很好用的库，那就是atomic类模板，在<atomic>头文件中，多个线程对atomic对象进行访问是安全的。
 
-### stl::atomic
+### stl::atomic 无锁
 
-在C++11之后，可以使用stl中atomic类
+在C++11之后，可以使用stl中atomic类。std::atomic对int, char, bool等数据结构进行原子性封装，在多线程环境中，对std::atomic对象的访问不会造成竞争-冒险。利用std::atomic可实现数据结构的无锁设计。
 
 ```C++
 template< class T > bool atomic_compare_exchange_weak( std::atomic<T>* obj,T* expected, T desired ); 
