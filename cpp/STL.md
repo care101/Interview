@@ -1,8 +1,8 @@
 目录
 
-> vector
+> [vector](https://github.com/care101/Interview/blob/master/cpp/STL.md#vector)
 
->> 内存扩展（内存复用以及缓存友好）
+>> [内存扩展（内存复用以及缓存友好）](https://github.com/care101/Interview/blob/master/cpp/STL.md#%E5%86%85%E5%AD%98%E6%89%A9%E5%B1%95%E5%86%85%E5%AD%98%E5%A4%8D%E7%94%A8%E4%BB%A5%E5%8F%8A%E7%BC%93%E5%AD%98%E5%8F%8B%E5%A5%BD)
 
 > map
 
@@ -26,14 +26,12 @@
 理想分配方案是是在第N次resize()的时候能复用之前N-1次释放的内存，但选择两倍的增长比如像这样：1，2，4，8，16，32，... 可以看到到第三次resize(4)的时候，前面释放的总和只有1+2=3，到第四次resize(8)的时候前面释放的总和只有1+2+4=7，每次需要申请的空间都无法用到前面释放的内存。这样对cache和MMU都不够友好。
 k = 1.5 在几次扩展之后，可以重用之前的内存空间。
 
-> vector内存空间浪费
+> vector内存空间浪费（reserve）
 ```C++
-resize()//强行把 vector 的元素个数扩展或者是减少到所指定的元素。
-reserve()//把容器的容量置为所指定的元素。
+resize();//强行把 vector 的元素个数扩展或者是减少到所指定的元素。
+reserve();//把容器的容量置为所指定的元素。
 ```
 Vector在capacity不够的时候会增长内部空间，是为了保证后续capacity-size个insert的O(1)插入复杂度，但还要考虑可能产生的堆空间浪费，所以增长倍数不能太大，假设vector按两倍空间增长，你要插入17个元素，到16个的时候capacity变为32，那么有15个元素的空间被浪费，当然你也可以用提前调用reserve(17)来解决，可是遇到无法得知insert数量的场景这个问题仍然存在
-
-> vector拷贝时是怎么拷贝的（stl::copy和模板偏特化）
 
 1、它必须重新分配适当的新的内存空间。
 
@@ -49,7 +47,46 @@ iv.reserve(kSize);
 for (int i = 0; i < kSize; ++i)  
   iv.push_back(i);
 ```
-
+> vector容器间的拷贝（stl::copy和模板偏特化）
+```C++
+#include <iostream>
+#include <algorithm>
+#include <vector>
+ 
+using namespace std;
+ 
+int main () 
+{
+	int myints[] = {10, 20, 30, 40, 50, 60, 70};
+	vector<int> myvector;
+	vector<int>::iterator it;
+	
+	myvector.resize(7);   // 为容器myvector分配空间
+	
+	//copy用法一：
+	//将数组myints中的七个元素复制到myvector容器中
+	copy ( myints, myints+7, myvector.begin() );
+	
+	cout << "myvector contains: ";
+	for ( it = myvector.begin();  it != myvector.end();  ++it )
+	{
+		cout << " " << *it;
+	}
+	cout << endl;
+ 
+	//copy用法二:
+	//将数组myints中的元素向左移动一位
+	copy(myints + 1, myints + 7, myints);
+ 
+	cout << "myints contains: ";
+	for ( size_t i = 0; i < 7; ++i )
+	{
+		cout << " " << myints[i];
+	}
+	cout << endl;
+ 
+	return 0;
+```
 
 
 
