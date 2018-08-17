@@ -8,9 +8,11 @@
 
 >> [mmap共享内存](https://github.com/care101/Interview/new/master#mmap%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98)
 
-> 多线程
+>> [全局同步]()
 
->> 线程同步互斥（mutex，barrier，atomic）
+> [多线程](https://github.com/care101/Interview/blob/master/project03.md#%E5%A4%9A%E7%BA%BF%E7%A8%8B)
+
+>> [线程同步互斥（mutex，barrier，atomic）](https://github.com/care101/Interview/blob/master/project03.md#%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E4%BA%92%E6%96%A5mutexbarrieratomic)
 
 > NUMA
 
@@ -65,7 +67,13 @@ ptr=mmap(NULL, len , PROT_READ|PROT_WRITE, MAP_SHARED , fd , 0);
 
 3、另外mmap有一个好处是当机器重启，因为mmap把文件保存在磁盘上，这个文件还保存了操作系统同步的映像，所以mmap不会丢失，但是shmget就会丢失。
 
-## 进程同步互斥（锁）
+## 全局同步
+
+MPI_Barrier函数 用于一个通信子中所有进程的同步，调用函数时进程将处于等待状态，直到通信子中所有进程 都调用了该函数后才继续执行。
+
+```C++
+ MPI_Barrier(MPI_COMM_WORLD);
+```
 
 # 多线程
 
@@ -74,6 +82,8 @@ ptr=mmap(NULL, len , PROT_READ|PROT_WRITE, MAP_SHARED , fd , 0);
 线程同步不用互斥锁，代价太大。锁1次是临界区的20倍甚至50倍以上的时间。线程同步可以用volatile变量、interlocked系列函数、SRW读写锁(vista系统及以上)、临界区。消耗的时间从小到大。这些都只能用于线程同步，不能用于进程同步。当然线程同步也用到计时器、信号量、时间和等待函数。
 
 ### mutex
+
+在访问共享资源前对互斥量进行加锁，访问后释放。
 ```C++
 std::mutex recv_queue_mutex;//对recv_queue的锁
 ```
@@ -82,6 +92,12 @@ recv_queue_mutex.lock();
 recv_queue_size += 1;
 recv_queue_mutex.unlock();
 ```
+可能导致死锁：线程试图对同一个互斥量加锁两次，或者需要控制加锁顺序。解决方案：
+```C++
+timed_mutex
+try_lock_for();
+```
+如果已经占有某些锁哦，且返回成功，就可以继续线程；如果不能获取锁，可以先释放已经占有的锁，过段时间再试。
 
 ### gcc 原子操作 无锁同步
 
@@ -90,6 +106,8 @@ recv_queue_mutex.unlock();
 stdlib.h中，可以使用bool __sync_bool_compare_and_swap (type *ptr, type oldval, type newval, ...)和type __sync_val_compare_and_swap (type *ptr, type oldval, type newval, ...)两个函数
 
 ### barrier（thread.join）
+
+允许任意数量的线程等待，知道所有线程完成处理，而线程不需要退出。所有线程到达barrier后可以继续工作。
 ```C++
 std::thread recv_thread_dst();
 ```
@@ -122,7 +140,7 @@ template< class T > bool atomic_compare_exchange_weak( std::atomic<T>* obj,T* ex
 template< class T > bool atomic_compare_exchange_weak( volatile std::atomic<T>* obj,T* expected, T desired );
 ```
 只要把“volatile bool”替换为“atomic<bool>”就可以。<atomic>头文件也定义了若干常用的别名，例如“atomic<bool>”就可以替换为“atomic_bool”。atomic模板重载了常用的运算符，所以atomic<bool>使用起来和普通的bool变量差别不大。
-```
+```C++
 volatile bool m_flag;
 atomic<bool> m_flag;
 ```
